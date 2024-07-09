@@ -86,3 +86,36 @@ export const loginUser = async (req, res) => {
       }
 }
 
+
+
+export const signout = (req, res) => {
+    res.clearCookie('access_token').status(200).json('Signout success!');
+  };
+
+
+
+export const deleteUser = async (req, res) => {
+    const { id } = req.params;
+    try {
+        // Find user by id
+        const user = await prisma.user.findUnique({
+            where: { id: id },
+        });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Delete user
+        await prisma.user.delete({
+            where: { id: id },
+        });
+
+        res.status(200).json({ message: 'User deleted successfully' });
+        console.log("User deleted successfully");
+    } catch (error) {
+        res.status(400).json({ message: 'User deletion failed: ' + error.message });
+    } finally {
+        await prisma.$disconnect();
+    }
+};
